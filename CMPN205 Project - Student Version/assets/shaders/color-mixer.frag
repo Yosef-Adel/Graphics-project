@@ -20,71 +20,14 @@ out vec4 frag_color;
 
 //TODO: (Req 1) Finish this shader and apply the channel mixing using the "dot" function.
 
-uniform vec4 red = vec4(1.0, 0.0, 0.0, 1.0);
-uniform vec4 green = vec4(0.0, 1.0, 0.0, 1.0);
-uniform vec4 blue = vec4(0.0, 0.0, 1.0, 1.0);
+uniform vec4 red = vec4(1.0, 0.0, 0.0, 0.0);
+uniform vec4 green = vec4(0.0, 1.0, 0.0, 0.0);
+uniform vec4 blue = vec4(0.0, 0.0, 1.0, 0.0);
 
 void main(){
-
-    float x = dot(red, vec4(fs_in.color, 0.0) );
-    x = x + red.a <= 1.0 ? x + red.a : x;
-    float y = dot(green, vec4(fs_in.color, 0.0) );
-    y = y + green.a <= 1.0 ? y + green.a : y;
-    float z = dot(blue, vec4(fs_in.color, 0.0) );
-    z = z + blue.a <= 1.0 ? z + blue.a : z;
-
-    frag_color = 
-    vec4(
-        x,
-        y,
-        z,
-        1.0
-    );
-
-    // float x = dot(red, vec4(fs_in.color, 0.0) );
-    // x = x + red.a <= 1.0 ? x + red.a : x;
-    // float y = dot(green, vec4(fs_in.color, 0.0) );
-    // y = y + green.a <= 1.0 ? y + green.a : y;
-    // float z = dot(blue, vec4(fs_in.color, 0.0) );
-    // z = z + blue.a <= 1.0 ? z + blue.a : z;
-    
-    
-    // float x = dot(red, vec4(fs_in.color, 0.0) );
-    // x = x > 0.0 ? x : red.a;
-    // float y = dot(green, vec4(fs_in.color, 0.0) );
-    // y = y > 0.0 ? y : green.a;
-    // float z = dot(blue, vec4(fs_in.color, 0.0) );
-    // z = z > 0.0 ? z : blue.a;
-
-    // frag_color = 
-    // vec4(
-    //     x,
-    //     y,
-    //     z,
-    //     1.0
-    // );
-
-    // the two above work for shader but fail two test cases "-1" in mesh which is the test for color for mesh
-
-
-    // vec4(
-    //                 dot(red, vec4(fs_in.color, 1.0)),
-    //                 dot(green, vec4(fs_in.color, 1.0)),
-    //                 dot(blue, vec4(fs_in.color, 1.0)),
-    //                 1.0); //doesn't work
-
-    // frag_color = vec4(
-    //     dot(red, vec4(fs_in.color, 0.0) ),
-    //     dot(green, vec4(fs_in.color, 0.0)) ,
-    //     dot(blue, vec4(fs_in.color, 0.0)) ,
-    //     1.0
-    // ); //works partially
-
-    // frag_color = vec4(
-    //     red.r * fs_in.color.r + red.g * fs_in.color.g + red.b * fs_in.color.b ,
-    //     green.r * fs_in.color.r + green.g * fs_in.color.g + green.b * fs_in.color.b,
-    //     blue.r * fs_in.color.r + blue.g * fs_in.color.g + blue.b * fs_in.color.b,
-    //     1.0
-    // ); //words partially
-
+    vec4 tempfrag_color = vec4(fs_in.color, 1.0);
+    frag_color.r = dot(tempfrag_color, red);
+    frag_color.g = dot(tempfrag_color, green);
+    frag_color.b = dot(tempfrag_color, blue);
+    frag_color.a = 1.0;
 }

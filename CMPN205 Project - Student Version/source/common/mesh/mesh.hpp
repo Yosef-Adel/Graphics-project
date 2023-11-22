@@ -56,11 +56,14 @@ namespace our {
 
             // Set the vertex attribute pointers
             glEnableVertexAttribArray(ATTRIB_LOC_POSITION);
-            glVertexAttribPointer(ATTRIB_LOC_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+            glVertexAttribPointer(ATTRIB_LOC_POSITION, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, position));
+
             glEnableVertexAttribArray(ATTRIB_LOC_COLOR);
-            glVertexAttribPointer(ATTRIB_LOC_COLOR, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+            glVertexAttribPointer(ATTRIB_LOC_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(Vertex), (void*)offsetof(Vertex, color));
+
             glEnableVertexAttribArray(ATTRIB_LOC_TEXCOORD);
             glVertexAttribPointer(ATTRIB_LOC_TEXCOORD, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, tex_coord));
+
             glEnableVertexAttribArray(ATTRIB_LOC_NORMAL);
             glVertexAttribPointer(ATTRIB_LOC_NORMAL, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)offsetof(Vertex, normal));
 
@@ -98,6 +101,7 @@ namespace our {
             //TODO: (Req 2) Write this function
             glBindVertexArray(VAO);
             glDrawElements(GL_TRIANGLES, elementCount, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
             /*
             Why we aren’t unbinding at the end of drawing:
             Unbinding buffers and arrays can be useful in some cases to avoid accidentally modifying them later. However, since each draw call requires specific buffers and arrays to be bound, you will have to bind them again before each draw call anyway. Therefore, unbinding at the end of each draw call can often be unnecessary, and it can even degrade performance in some cases.
