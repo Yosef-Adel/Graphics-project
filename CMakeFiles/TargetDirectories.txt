@@ -1,0 +1,8 @@
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/CMakeFiles/GAME_APPLICATION.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/CMakeFiles/edit_cache.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/CMakeFiles/rebuild_cache.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/vendor/glfw/CMakeFiles/edit_cache.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/vendor/glfw/CMakeFiles/rebuild_cache.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/vendor/glfw/src/CMakeFiles/glfw.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/vendor/glfw/src/CMakeFiles/edit_cache.dir
+/Users/yosefsaaid/dev/Graphics/Graphics-project/CMPN205 Project - Student Version/vendor/glfw/src/CMakeFiles/rebuild_cache.dir
