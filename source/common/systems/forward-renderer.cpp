@@ -240,10 +240,15 @@ namespace our {
             //This matrix is applied after the projection matrix, so it operates in clip space. In clip space, the coordinates are homogeneous coordinates, 
             //meaning they have four components: x, y, z, and w. The actual 3D coordinates are obtained by dividing x, y, and z by w.
             //The third row of the matrix sets the z-coordinate to 0, but the fourth row sets the w-coordinate to the original z-coordinate. 
-            //When the perspective division (x/w, y/w, z/w) is performed, this effectively sets the z-coordinate to 1, 
-            //which represents the farthest visible depth in Normalized Device Coordinates (NDC) space.
-            //So, despite the z-coordinate being set to 0 in the matrix, the manipulation of the w-coordinate ensures that the skybox is rendered at the farthest depth, 
-            //behind all other objects in the scene
+            //When the perspective division (x/w, y/w, z/w) is performed
+            
+            //The reason this matrix works for rendering the skybox behind everything else is because of how depth testing works in OpenGL. 
+            //By default, OpenGL uses a depth range of [0, 1], where 0 is the nearest depth and 1 is the farthest. However, when depth testing is enabled, 
+            //fragments (potential pixels) with a z-coordinate of 0 in NDC space pass the depth test and are drawn on top of everything else.
+            //So, by setting the z-coordinate of the skybox to 0 in NDC space, you’re effectively disabling depth testing for the skybox. 
+            //It will always be drawn, regardless of the depth of other objects in the scene. However, because the skybox is drawn first and doesn’t update the depth buffer, 
+            //all other objects will still be drawn on top of it, as long as their depth is less than 1.
+            //This is a bit counter-intuitive, but it’s a common trick used in OpenGL to render skyboxes.
             
             glm::mat4 projection = camera->getProjectionMatrix(windowSize);
 
