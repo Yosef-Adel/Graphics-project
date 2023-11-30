@@ -141,7 +141,8 @@ namespace our {
 
         //TODO: (Req 9) Modify the following line such that "cameraForward" contains a vector pointing the camera forward direction
         // HINT: See how you wrote the CameraComponent::getViewMatrix, it should help you solve this one
-        glm::vec3 cameraForward = camera->getViewMatrix() * glm::vec4(0, 0, -1, 0); //3rd column of the view matrix
+        glm::mat4 VM = camera->getViewMatrix();
+        glm::vec3 cameraForward = glm::vec3(VM[2][0], VM[2][1], VM[2][2]); // 3rd row
         std::sort(transparentCommands.begin(), transparentCommands.end(), [cameraForward](const RenderCommand& first, const RenderCommand& second){
             //TODO: (Req 9) Finish this function
             // HINT: the following return should return true "first" should be drawn before "second". 
