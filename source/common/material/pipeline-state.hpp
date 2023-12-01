@@ -59,8 +59,8 @@ namespace our {
 
             if(blending.enabled) {
                 glEnable(GL_BLEND);
-                glBlendEquationSeparate(blending.equation, blending.equation);
-                glBlendFuncSeparate(blending.sourceFactor, blending.destinationFactor, blending.sourceFactor, blending.destinationFactor);
+                glBlendEquation(blending.equation);
+                glBlendFunc(blending.sourceFactor, blending.destinationFactor);
                 glBlendColor(blending.constantColor.r, blending.constantColor.g, blending.constantColor.b, blending.constantColor.a);
             } else {
                 glDisable(GL_BLEND);
