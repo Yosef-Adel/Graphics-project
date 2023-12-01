@@ -26,21 +26,13 @@
 
 std::string default_screenshot_filepath() {
     std::stringstream stream;
+    auto time = std::time(nullptr);
     
-    
-    time_t time = std::time(nullptr); // Get the current time
     struct tm localtime;
-
-    #if defined(_WIN32) || defined(_WIN64)
-    // Windows-specific code
     localtime_s(&localtime, &time);
-    #else
-    // Unix-like systems (macOS, Linux)
-    localtime_r(&time, &localtime);
-    #endif
-        stream << "screenshots/screenshot-" << std::put_time(&localtime, "%Y-%m-%d-%H-%M-%S") << ".png";
-        return stream.str();
-    }
+    stream << "screenshots/screenshot-" << std::put_time(&localtime, "%Y-%m-%d-%H-%M-%S") << ".png";
+    return stream.str();
+}
 
 // This function will be used to log errors thrown by GLFW
 void glfw_error_callback(int error, const char* description){
