@@ -10,7 +10,8 @@ our::Texture2D* our::texture_utils::empty(GLenum format, glm::ivec2 size){
     //TODO: (Req 11) Finish this function to create an empty texture with the given size and format
     texture->bind();
 
-    glTexImage2D(format, 0, format, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, format, size.x, size.y, 0, format, GL_UNSIGNED_BYTE, NULL);
+
     //  Allocates storage for the texture. It specifies the texture target (2D), level of detail (0),
     //  internal format (e.g., RGB or RGBA), width, height, border (0), format (same as internal format),
     //  data type (GL_UNSIGNED_BYTE), and a null pointer (since we’re creating an empty texture).
