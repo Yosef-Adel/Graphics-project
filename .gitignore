@@ -4,6 +4,8 @@ cmake-build-*/
 build/
 out/
 bin/
+errors/
+CMakeCache.txt
 
 # imgui saved state
 imgui.ini
