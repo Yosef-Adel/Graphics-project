@@ -249,6 +249,57 @@ int our::Application::run(int run_for_frames) {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+
+
+        if (currentState == states["play"])
+        {
+            //end_time = glfwGetTime();
+
+            ImGui::SetNextWindowSize(ImVec2(1280, 200));
+            ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoMove);
+            ImGui::SetWindowPos(" ", ImVec2(0, 0));
+
+            ImGuiStyle *style = &ImGui::GetStyle();
+
+            ImVec4 *colors = style->Colors;
+            colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_Border] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_ResizeGripActive] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_TitleBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_TitleBgCollapsed] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+            ImGui::Text("%.1f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+            ImGui::End();
+        }
+        else if (currentState == states["win"])
+        {
+            ImGui::SetNextWindowSize(ImVec2(500, 200));
+            ImGui::Begin(" ", nullptr, ImGuiWindowFlags_NoMove);
+            ImGui::SetWindowPos(" ", ImVec2(250, 500));
+
+            ImGuiStyle *style = &ImGui::GetStyle();
+            style->WindowMenuButtonPosition = ImGuiDir_None;
+
+            ImVec4 *colors = style->Colors;
+            colors[ImGuiCol_WindowBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_Border] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_ResizeGrip] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_ResizeGripActive] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_TitleBg] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+            colors[ImGuiCol_TitleBgActive] = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+            ImGui::Text("%.1f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+            ImGui::End();
+        }
+
+
+
         if(currentState) currentState->onImmediateGui(); // Call to run any required Immediate GUI.
 
         // If ImGui is using the mouse or keyboard, then we don't want the captured events to affect our keyboard and mouse objects.

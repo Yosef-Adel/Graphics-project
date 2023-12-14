@@ -53,12 +53,33 @@ namespace our {
         void deserialize(const nlohmann::json& data) override;
     };
 
+
+    class LitMaterial : public Material
+    {
+    public:
+        // here we add the texture maps
+        // that is used to calculate the material properties
+        Texture2D *albedo;
+        Texture2D *specular;
+        Texture2D *roughness;
+        Texture2D *ambient_occlusion;
+        Texture2D *emissive;
+        Sampler *sampler;
+
+        // override these functions in material.cpp
+        void setup() const override;
+        void deserialize(const nlohmann::json &data) override;
+    };
+
+
     // This function returns a new material instance based on the given type
     inline Material* createMaterialFromType(const std::string& type){
         if(type == "tinted"){
             return new TintedMaterial();
         } else if(type == "textured"){
             return new TexturedMaterial();
+        } else if (type == "lighted"){
+            return new LitMaterial();
         } else {
             return new Material();
         }

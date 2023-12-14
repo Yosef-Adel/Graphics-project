@@ -35,6 +35,31 @@ class Playstate: public our::State {
     }
 
     void onDraw(double deltaTime) override {
+        //time += deltaTime;
+
+        // player hit a wall and died
+        if (getApp()->dead == true)
+        {
+            getApp()->changeState("game_over");
+            getApp()->winner = false;
+            getApp()->dead = false;
+            
+            //time =0;
+            return;
+        }
+
+        // player won
+        if (getApp()->winner == true)
+        {
+            getApp()->changeState("win");
+            getApp()->winner = false;
+            getApp()->dead = false;
+            //time = 0;
+            return;
+        }
+        
+
+
         // Here, we just run a bunch of systems to control the world logic
         movementSystem.update(&world, (float)deltaTime);
         cameraController.update(&world, (float)deltaTime);

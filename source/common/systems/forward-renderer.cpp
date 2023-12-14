@@ -1,6 +1,8 @@
 #include "forward-renderer.hpp"
 #include "../mesh/mesh-utils.hpp"
 #include "../texture/texture-utils.hpp"
+
+#include <GLFW/glfw3.h>
 //#include <iostream>
 
 namespace our {
@@ -124,6 +126,9 @@ namespace our {
         CameraComponent* camera = nullptr;
         opaqueCommands.clear();
         transparentCommands.clear();
+
+        lightSources.clear();
+
         for(auto entity : world->getEntities()){
             // If we hadn't found a camera yet, we look for a camera in this entity
             if(!camera) camera = entity->getComponent<CameraComponent>();
@@ -142,6 +147,11 @@ namespace our {
                 // Otherwise, we add it to the opaque command list
                     opaqueCommands.push_back(command);
                 }
+            }
+
+            if (auto lightComp = entity->getComponent<LightComponent>(); lightComp)
+            {
+                lightSources.push_back(lightComp);
             }
         }
 
@@ -184,6 +194,11 @@ namespace our {
         //TODO: (Req 9) Draw all the opaque commands
         // Don't forget to set the "transform" uniform to be equal the model-view-projection matrix for each render command
         glm::vec3 cameraPosition = camera->getOwner()->localTransform.position;
+
+        glm::vec4 eye(0, 0, 0, 1); 
+        auto local_world = camera->getOwner()->getLocalToWorldMatrix();
+        auto the_eye = local_world * eye;
+        
         for (const auto& command : opaqueCommands)
         {
             // Set the "transform" uniform to be equal to the model-view-projection matrix
@@ -191,10 +206,44 @@ namespace our {
 
             command.material->transparent = false;
             command.material->setup();
-            command.material->shader->set("transform", MVP);
-            command.material->shader->set("objectToWorld", command.localToWorld);
-            //command.material->shader->set("objectToInvTranspose", glm::transpose(glm::inverse(command.localToWorld)));
-            //command.material->shader->set("cameraPosition", cameraPosition);
+
+            
+            // if the material of the object is lighted
+            if (auto light_material = dynamic_cast<LitMaterial *>(command.material); light_material)
+            {
+
+                light_material->shader->set("VP", VP);
+                light_material->shader->set("M", command.localToWorld);
+                light_material->shader->set("eye", the_eye);
+                light_material->shader->set("M_IT", glm::transpose(glm::inverse(command.localToWorld)));
+                light_material->shader->set("light_count", (int)lightSources.size());
+
+                for (int i = 0; i < (int)lightSources.size(); i++)
+                {
+                    if (lightSources[i]->lightType >= 0)
+                    {
+                        // calculate position and direction of the light source based on the object
+                        glm::vec3 position = lightSources[i]->getOwner()->getLocalToWorldMatrix() * glm::vec4(0, 0, 0, 1);
+                        glm::vec3 direction = lightSources[i]->getOwner()->getLocalToWorldMatrix() * glm::vec4(0, -1, 0, 0);
+
+                        light_material->shader->set("lights[" + std::to_string(i) + "].direction", direction);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].color", lightSources[i]->color);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].type", lightSources[i]->lightType);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].position", position);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].diffuse", lightSources[i]->diffuse);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].specular", lightSources[i]->specular);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].attenuation", lightSources[i]->attenuation);
+                        light_material->shader->set("lights[" + std::to_string(i) + "].cone_angles", lightSources[i]->cone_angles);
+                    }
+                }
+            }
+            else{
+                command.material->shader->set("transform", MVP);
+                command.material->shader->set("objectToWorld", command.localToWorld);
+                //command.material->shader->set("objectToInvTranspose", glm::transpose(glm::inverse(command.localToWorld)));
+                //command.material->shader->set("cameraPosition", cameraPosition);
+            }
+            
 
             command.mesh->draw();
         }
@@ -225,41 +274,8 @@ namespace our {
                 0.0f, 0.0f, 1.0f, 1.0f
             );
 
-            //This matrix is designed to manipulate the depth values of the skybox in Normalized Device Coordinates (NDC) space. 
-            //NDC space is a coordinate system where the visible portion of the scene fits within a cube that spans from -1 to 1 in all three dimensions (x, y, and z).
-            //In NDC space, a z-value of 1 represents the farthest visible depth.
-            //By multiplying the skybox’s vertices by alwaysBehindTransform, we’re effectively setting their z-values to 1 in NDC space.
-            
-            //First row [1.0f, 0.0f, 0.0f, 0.0f]: This row corresponds to the x-coordinates. 
-            //The 1.0f value means that the x-coordinate of the transformed point will be the same as the original x-coordinate. 
-            //The rest of the values in this row are 0, meaning the y, z, and w coordinates of the original point do not contribute to the new x-coordinate.
-
-            //Second row [0.0f, 1.0f, 0.0f, 0.0f]: This row corresponds to the y-coordinates.
-            //The 1.0f value means that the y-coordinate of the transformed point will be the same as the original y-coordinate. 
-            //The rest of the values in this row are 0, meaning the x, z, and w coordinates of the original point do not contribute to the new y-coordinate.
-
-            //Third row [0.0f, 0.0f, 0.0f, 0.0f]: This row corresponds to the z-coordinates. All values in this row are 0,
-            //which means that the z-coordinate of the transformed point will always be 0, regardless of the original z-coordinate.
-            //This effectively sets the depth value of the skybox to 0 in NDC space. but here we are applying it after so its in the clip space see comments below
-
-            //Fourth row [0.0f, 0.0f, 1.0f, 1.0f]: This row corresponds to the w-coordinates, which are used for homogeneous coordinates. 
-            //The 1.0f for the z-coordinate means that the z-coordinate of the original point contributes to the new w-coordinate. 
-            //The other 1.0f means that the original w-coordinate (which is typically 1 for points) also contributes to the new w-coordinate. 
-            //The rest of the values in this row are 0, meaning the x and y coordinates of the original point do not contribute to the new w-coordinate.
-
-            //This matrix is applied after the projection matrix, so it operates in clip space. In clip space, the coordinates are homogeneous coordinates, 
-            //meaning they have four components: x, y, z, and w. The actual 3D coordinates are obtained by dividing x, y, and z by w.
-            //The third row of the matrix sets the z-coordinate to 0, but the fourth row sets the w-coordinate to the original z-coordinate. 
-            //When the perspective division (x/w, y/w, z/w) is performed
-            
-            //The reason this matrix works for rendering the skybox behind everything else is because of how depth testing works in OpenGL. 
-            //By default, OpenGL uses a depth range of [0, 1], where 0 is the nearest depth and 1 is the farthest. However, when depth testing is enabled, 
-            //fragments (potential pixels) with a z-coordinate of 0 in NDC space pass the depth test and are drawn on top of everything else.
-            //So, by setting the z-coordinate of the skybox to 0 in NDC space, you’re effectively disabling depth testing for the skybox. 
-            //It will always be drawn, regardless of the depth of other objects in the scene. However, because the skybox is drawn first and doesn’t update the depth buffer, 
-            //all other objects will still be drawn on top of it, as long as their depth is less than 1.
-            //This is a bit counter-intuitive, but it’s a common trick used in OpenGL to render skyboxes.
-            
+            //set z to 0 then shift by 1
+                       
             glm::mat4 projection = camera->getProjectionMatrix(windowSize);
 
             // The projection matrix of the camera is retrieved using camera->getProjectionMatrix(windowSize).
@@ -298,6 +314,9 @@ namespace our {
             //TODO: (Req 11) Setup the postprocess material and draw the fullscreen triangle
             postprocessMaterial->setup();
 
+            double current_frame_time = glfwGetTime();
+            postprocessMaterial->shader->set("time", (float)current_frame_time); // if needed for radial blur shader
+            
             glBindVertexArray(postProcessVertexArray);
             glDrawArrays(GL_TRIANGLES, 0, 3);
             glBindVertexArray(0);

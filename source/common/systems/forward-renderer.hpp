@@ -9,6 +9,8 @@
 #include <vector>
 #include <algorithm>
 
+#include "../components/light.hpp"
+
 namespace our
 {
     
@@ -40,6 +42,9 @@ namespace our
         GLuint postprocessFrameBuffer, postProcessVertexArray;
         Texture2D *colorTarget, *depthTarget;
         TexturedMaterial* postprocessMaterial;
+
+        std::vector<LightComponent *> lightSources;
+        LitMaterial *lightMaterial;
     public:
         // Initialize the renderer including the sky and the Postprocessing objects.
         // windowSize is the width & height of the window (in pixels).
