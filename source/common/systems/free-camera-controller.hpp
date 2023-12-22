@@ -3,73 +3,80 @@
 #include "../ecs/world.hpp"
 #include "../components/camera.hpp"
 #include "../components/free-camera-controller.hpp"
-
+#include "../components/player.hpp"
 #include "../application.hpp"
-
+#include "../components/collisions.hpp"
 #include <glm/glm.hpp>
 #include <glm/gtc/constants.hpp>
 #include <glm/trigonometric.hpp>
 #include <glm/gtx/fast_trigonometry.hpp>
+#include <iostream>
 
 namespace our
 {
 
     // The free camera controller system is responsible for moving every entity which contains a FreeCameraControllerComponent.
-    // This system is added as a slightly complex example for how use the ECS framework to implement logic. 
+    // This system is added as a slightly complex example for how use the ECS framework to implement logic.
     // For more information, see "common/components/free-camera-controller.hpp"
-    class FreeCameraControllerSystem {
-        Application* app; // The application in which the state runs
+    class FreeCameraControllerSystem
+    {
+        Application *app;          // The application in which the state runs
         bool mouse_locked = false; // Is the mouse locked
 
     public:
         // When a state enters, it should call this function and give it the pointer to the application
-        void enter(Application* app){
+        void enter(Application *app)
+        {
             this->app = app;
         }
 
-        // This should be called every frame to update all entities containing a FreeCameraControllerComponent 
-        void update(World* world, float deltaTime) {
+  std::string obstacleTypeToString(CollisionType type) {
+                    switch (type) {
+                        case CollisionType::WALL: return "wall";
+                        case CollisionType::WIN: return "win";
+                        
+                        default: return "Unknown Obstacle";
+                    }
+                }
+        // This should be called every frame to update all entities containing a FreeCameraControllerComponent
+        void update(World *world, float deltaTime)
+        {
             // First of all, we search for an entity containing both a CameraComponent and a FreeCameraControllerComponent
             // As soon as we find one, we break
-            CameraComponent* camera = nullptr;
+            CameraComponent *camera = nullptr;
+            PlayerComponent *player = nullptr;
             FreeCameraControllerComponent *controller = nullptr;
-            for(auto entity : world->getEntities()){
+            bool upCollider = false;
+            bool downCollider = false;
+            for (auto entity : world->getEntities())
+            {
                 camera = entity->getComponent<CameraComponent>();
                 controller = entity->getComponent<FreeCameraControllerComponent>();
-                if(camera && controller) break;
+                if (camera && controller)
+                    break;
+            }
+            for (auto entity : world->getEntities())
+            {
+                player = entity->getComponent<PlayerComponent>();
+                if (player)
+                    break;
             }
             // If there is no entity with both a CameraComponent and a FreeCameraControllerComponent, we can do nothing so we return
-            if(!(camera && controller)) return;
+            if (!(camera && controller))
+            {
+                return;
+            }
+
+            if (!player)
+            {
+                return;
+            }
             // Get the entity that we found via getOwner of camera (we could use controller->getOwner())
-            Entity* entity = camera->getOwner();
+            Entity *entity = player->getOwner();
 
-            // If the left mouse button is pressed, we lock and hide the mouse. This common in First Person Games.
-            if(app->getMouse().isPressed(GLFW_MOUSE_BUTTON_1) && !mouse_locked){
-                app->getMouse().lockMouse(app->getWindow());
-                mouse_locked = true;
-            // If the left mouse button is released, we unlock and unhide the mouse.
-            } else if(!app->getMouse().isPressed(GLFW_MOUSE_BUTTON_1) && mouse_locked) {
-                app->getMouse().unlockMouse(app->getWindow());
-                mouse_locked = false;
-            }
+            glm::vec3 &position = entity->localTransform.position;
+            glm::vec3 &rotation = entity->localTransform.rotation;
 
-            // We get a reference to the entity's position and rotation
-            glm::vec3& position = entity->localTransform.position;
-            glm::vec3& rotation = entity->localTransform.rotation;
-
-            // If the left mouse button is pressed, we get the change in the mouse location
-            // and use it to update the camera rotation
-            if(app->getMouse().isPressed(GLFW_MOUSE_BUTTON_1)){
-                glm::vec2 delta = app->getMouse().getMouseDelta();
-                rotation.x -= delta.y * controller->rotationSensitivity; // The y-axis controls the pitch
-                rotation.y -= delta.x * controller->rotationSensitivity; // The x-axis controls the yaw
-            }
-
-            // We prevent the pitch from exceeding a certain angle from the XZ plane to prevent gimbal locks
-            if(rotation.x < -glm::half_pi<float>() * 0.99f) rotation.x = -glm::half_pi<float>() * 0.99f;
-            if(rotation.x >  glm::half_pi<float>() * 0.99f) rotation.x  = glm::half_pi<float>() * 0.99f;
-            // This is not necessary, but whenever the rotation goes outside the 0 to 2*PI range, we wrap it back inside.
-            // This could prevent floating point error if the player rotates in single direction for an extremely long time. 
             rotation.y = glm::wrapAngle(rotation.y);
 
             // We update the camera fov based on the mouse wheel scrolling amount
@@ -81,33 +88,103 @@ namespace our
             glm::mat4 matrix = entity->localTransform.toMat4();
 
             glm::vec3 front = glm::vec3(matrix * glm::vec4(0, 0, -1, 0)),
-                      up = glm::vec3(matrix * glm::vec4(0, 1, 0, 0)), 
+                      up = glm::vec3(matrix * glm::vec4(0, 1, 0, 0)),
                       right = glm::vec3(matrix * glm::vec4(1, 0, 0, 0));
 
             glm::vec3 current_sensitivity = controller->positionSensitivity;
-            // If the LEFT SHIFT key is pressed, we multiply the position sensitivity by the speed up factor
-            if(app->getKeyboard().isPressed(GLFW_KEY_LEFT_SHIFT)) current_sensitivity *= controller->speedupFactor;
 
-            // We change the camera position based on the keys WASD/QE
-            // S & W moves the player back and forth
-            if(app->getKeyboard().isPressed(GLFW_KEY_W)) position += front * (deltaTime * current_sensitivity.z);
-            if(app->getKeyboard().isPressed(GLFW_KEY_S)) position -= front * (deltaTime * current_sensitivity.z);
-            // Q & E moves the player up and down
-            if(app->getKeyboard().isPressed(GLFW_KEY_Q)) position += up * (deltaTime * current_sensitivity.y);
-            if(app->getKeyboard().isPressed(GLFW_KEY_E)) position -= up * (deltaTime * current_sensitivity.y);
-            // A & D moves the player left or right 
-            if(app->getKeyboard().isPressed(GLFW_KEY_D)) position += right * (deltaTime * current_sensitivity.x);
-            if(app->getKeyboard().isPressed(GLFW_KEY_A)) position -= right * (deltaTime * current_sensitivity.x);
+            position -= front * (deltaTime * current_sensitivity.z);
+            float min_distance = INT_MAX - 1;
+            float act_ball;
+            float act_coliding;
+            float mov;
+            float distance;
+            CollisionComponent *collision = nullptr;
+            std::string act_Collision_Type;
+            Entity *Collision_entity = nullptr;
+            Entity *actual_collision_entity = nullptr;
+            for (auto entity : world->getEntities())
+            {
+                collision = entity->getComponent<CollisionComponent>();
+                if (!(collision))
+                    continue;
+                Collision_entity = collision->getOwner();
+
+                std::string name = Collision_entity->name;
+                glm::vec3 &objPosition = Collision_entity->localTransform.position;
+                glm::vec3 &objScale = Collision_entity->localTransform.scale;
+                bool collisionY = false;
+                mov = deltaTime * current_sensitivity.z;
+
+                float act_ball_top = position.z;
+                // float act_ball_below = position.z ;
+
+                float act_wall_top = objPosition.z + objScale.z + 1;
+                float act_wall_below = objPosition.z - objScale.z - 1;
+
+                float act_coliding_leftmost = objPosition.x + objScale.x;
+                float act_coliding_writemost = objPosition.x - objScale.x;
+                act_ball = position.x;
+
+                distance = act_ball - act_coliding;
+              
+                if (act_ball <= act_coliding_leftmost && act_ball >= act_coliding_writemost) // ball is left of wall
+                {
+                    // std::cout<<"###########"<<std::endl;
+                    if (act_ball_top > act_wall_below && act_ball_top < act_wall_top)
+                    {
+                        std::cout << obstacleTypeToString(collision->getobstacleType()) << std::endl;
+
+                        
+                        // if (collision->getobstucaseType() == CollisionType::SCORE)
+                        // {
+                        //     act_Collision_Type = "score";
+                        //     actual_collision_entity = Collision_entity;
+                        // }
+                        if (collision->getobstacleType() == CollisionType::WALL)
+                        {
+                            std::cout << "wall" << std::endl;
+                            act_Collision_Type = "wall";
+                            actual_collision_entity = Collision_entity;
+                        }
+                        else if (collision->getobstacleType() == CollisionType::WIN)
+                      
+                        {
+                               std::cout << "$$$$$$$$$$$" << std::endl;
+                            act_Collision_Type = "win";
+                            actual_collision_entity = Collision_entity;
+                        }
+
+                        min_distance = distance;
+                    }
+                }
+            }
+
+            if (act_Collision_Type == "wall")
+            {
+                app->dead = true;
+            }
+
+            if (act_Collision_Type == "win")
+            {
+                app->winner = true;
+            }
+
+            if (app->getKeyboard().isPressed(GLFW_KEY_D))
+                position -= right * (deltaTime * current_sensitivity.x);
+            if (app->getKeyboard().isPressed(GLFW_KEY_A))
+                position += right * (deltaTime * current_sensitivity.x);
         }
 
         // When the state exits, it should call this function to ensure the mouse is unlocked
-        void exit(){
-            if(mouse_locked) {
+        void exit()
+        {
+            if (mouse_locked)
+            {
                 mouse_locked = false;
                 app->getMouse().unlockMouse(app->getWindow());
             }
         }
-
     };
 
 }

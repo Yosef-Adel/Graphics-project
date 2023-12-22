@@ -68,9 +68,14 @@ set(COMMON_SOURCES
         source/common/ecs/entity.cpp
         source/common/ecs/world.hpp
         source/common/ecs/world.cpp
+        
 
         source/common/components/camera.hpp
         source/common/components/camera.cpp
+        source/common/components/player.hpp
+        source/common/components/player.cpp
+        source/common/components/collisions.hpp
+        source/common/components/collisions.cpp
         source/common/components/mesh-renderer.hpp
         source/common/components/mesh-renderer.cpp
         source/common/components/free-camera-controller.hpp
@@ -102,16 +107,9 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_SOURCE_DIR}/bin)
 
 set(STATES_SOURCES
         source/states/play-state.hpp
+        source/states/lose-state.hpp
         source/states/menu-state.hpp
-        source/states/shader-test-state.hpp
-        source/states/mesh-test-state.hpp
-        source/states/transform-test-state.hpp
-        source/states/pipeline-test-state.hpp
-        source/states/texture-test-state.hpp
-        source/states/sampler-test-state.hpp
-        source/states/material-test-state.hpp
-        source/states/entity-test-state.hpp
-        source/states/renderer-test-state.hpp
+        source/states/win-state.hpp
 )
 
 # For each example, we add an executable target
