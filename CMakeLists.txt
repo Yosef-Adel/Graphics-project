@@ -74,6 +74,8 @@ set(COMMON_SOURCES
         source/common/components/camera.cpp
         source/common/components/player.hpp
         source/common/components/player.cpp
+        source/common/components/light.hpp
+        source/common/components/light.cpp
         source/common/components/collisions.hpp
         source/common/components/collisions.cpp
         source/common/components/mesh-renderer.hpp

@@ -20,11 +20,6 @@ struct Light {
 uniform Light lights[MAX_LIGHTS];
 uniform int light_count;
 
-struct Sky {
-    vec3 top, middle, bottom;
-};
-
-uniform Sky sky;
 
 struct Material {
     sampler2D albedo;
@@ -47,6 +42,7 @@ in Varyings {
 out vec4 frag_color;
 
 void main(){
+    //normalize vectors
     vec3 view = normalize(fs_in.view);
     vec3 normal = normalize(fs_in.normal);
 
@@ -60,11 +56,6 @@ void main(){
     // Set to 0 in entities without emissive properties.
     vec3 material_emissive = texture(material.emissive, fs_in.tex_coord).rgb;
 
-    vec3 sky_light = (normal.y > 0) ?
-        mix(sky.middle, sky.top, normal.y * normal.y) :
-        mix(sky.middle, sky.bottom, normal.y * normal.y);
-
-    
     frag_color = vec4(material_emissive  , 1.0);
 
     int clamped_light_count = min(MAX_LIGHTS, light_count);
@@ -76,24 +67,30 @@ void main(){
             direction_to_light = normalize(light.position - fs_in.world);
         }
         
+        // Diffuse component
         vec3 diffuse = light.diffuse * material_diffuse * max(0, dot(normal, direction_to_light));
         
+         // Specular component
         vec3 reflected = reflect(-direction_to_light, normal);
-        
         vec3 specular = light.specular * material_specular * pow(max(0, dot(view, reflected)), material_shininess);
 
+        // Ambient component
         vec3 total_ambiance = material_ambient *  light.color;
 
+        // Attenuation calculation
         float attenuation = 1;
         if(light.type != DIRECTIONAL){
             float d = distance(light.position, fs_in.world);
             attenuation /= dot(light.attenuation, vec3(d*d, d, 1));
+
+            // Spotlight specific calculations
             if(light.type == SPOT){
                 float angle = acos(dot(-direction_to_light, light.direction));
                 attenuation *= smoothstep(light.cone_angles.y, light.cone_angles.x, angle);
             }
         }
 
+        // Accumulate light contributions
         frag_color.rgb += ((diffuse + specular) * attenuation )+ total_ambiance ;
     }
 }
