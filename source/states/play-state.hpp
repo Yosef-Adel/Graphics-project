@@ -43,8 +43,8 @@ class Playstate: public our::State {
             getApp()->changeState("game_over");
             getApp()->winner = false;
             getApp()->dead = false;
-            
-            //time =0;
+             getApp()->score = 0;
+
             return;
         }
 
@@ -54,7 +54,8 @@ class Playstate: public our::State {
             getApp()->changeState("win");
             getApp()->winner = false;
             getApp()->dead = false;
-            //time = 0;
+            getApp()->score = 0;
+
             return;
         }
         

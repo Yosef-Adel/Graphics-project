@@ -71,7 +71,7 @@ namespace our {
         virtual void setupCallbacks();                              // Sets-up the window callback functions from GLFW to our (Mouse/Keyboard) classes.
 
     public:
-
+        int score = 0;
         bool winner = false;
         bool dead = false;
         //double start_time, end_time;

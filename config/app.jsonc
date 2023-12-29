@@ -11,7 +11,7 @@
     },
     "scene": {
         "renderer":{
-            "sky": "assets/textures/sky.jpg",
+            "sky": "assets/textures/1144294.jpg",
             "postprocess": "assets/shaders/postprocess/vignette.frag"
         },
         "assets":{
@@ -30,13 +30,19 @@
                 "grass": "assets/textures/grass_ground_d.jpg",
                 "wood": "assets/textures/wood.jpg",
                 "glass": "assets/textures/glass-panels.png",
-                "monkey": "assets/textures/monkey.png"
+                "monkey": "assets/textures/monkey.png",
+                "black": "assets/textures/black.jpg",
+                "red": "assets/textures/red.png",
+                "gold": "assets/textures/gold.png",
+                "gogo": "assets/textures/1324832.png"
             },
             "meshes":{
                 "cube": "assets/models/cube.obj",
                 "monkey": "assets/models/monkey.obj",
                 "plane": "assets/models/plane.obj",
-                "sphere": "assets/models/sphere.obj"
+                "sphere": "assets/models/sphere.obj",
+                "ironMan": "assets/models/ironMan.obj",
+                "mario": "assets/models/source/mario.obj"
             },
             "samplers":{
                 "default":{},
@@ -58,6 +64,7 @@
                     },
                     "tint": [0.45, 0.4, 0.5, 1]
                 },
+
                 "glass":{
                     "type": "textured",
                     "shader": "textured",
@@ -130,6 +137,36 @@
                     "texture": "monkey",
                     "sampler": "default"
                 },
+                "gogo":{
+                    "type": "textured",
+                    "shader": "textured",
+                    "pipelineState": {
+                        "faceCulling":{
+                            "enabled": false
+                        },
+                        "depthTesting":{
+                            "enabled": true
+                        }
+                    },
+                    "tint": [1, 1, 1, 1],
+                    "texture": "gogo",
+                    "sampler": "default"
+                },
+                "coin":{
+                    "type": "textured",
+                    "shader": "textured",
+                    "pipelineState": {
+                        "faceCulling":{
+                            "enabled": false
+                        },
+                        "depthTesting":{
+                            "enabled": true
+                        }
+                    },
+                    "tint": [1, 1, 1, 1],
+                    "texture": "gold",
+                    "sampler": "default"
+                },
                 "moon":{
                     "type": "textured",
                     "shader": "textured",
@@ -144,23 +181,53 @@
                     "tint": [1, 1, 1, 1],
                     "texture": "moon",
                     "sampler": "default"
+                },
+                "land":{
+                    "type": "textured",
+                    "shader": "textured",
+                    "pipelineState": {
+                        "faceCulling":{
+                            "enabled": false
+                        },
+                        "depthTesting":{
+                            "enabled": true
+                        }
+                    },
+                    "tint": [1, 1, 1, 1],
+                    "texture": "wood",
+                    "sampler": "default"
+                },
+                "wall":{
+                    "type": "textured",
+                    "shader": "textured",
+                    "pipelineState": {
+                        "faceCulling":{
+                            "enabled": false
+                        },
+                        "depthTesting":{
+                            "enabled": true
+                        }
+                    },
+                    "tint": [1, 1, 1, 1],
+                    "texture": "black",
+                    "sampler": "default"
                 }
             }
         },
         "world":[
             {
                 "name":"player",
-                "position": [0, 0, -900],
+                "position": [0, 0.5, -900],
                 "rotation": [0, 0, 0],
-                "scale": [0.5, 0.8, 0.5],
+                "scale": [0.00003, 0.00003, 0.0005],
                 "components": [
                     {
                         "type":"player"
                     },
                     {
                         "type": "Mesh Renderer",
-                        "mesh": "cube",
-                        "material": "metal"
+                        "mesh": "ironMan",
+                        "material": "gogo"
                     },
                     {
                         "type": "Movement",
@@ -177,7 +244,7 @@
                 ],
                 "children": [
                     {
-                        "position": [0, 5, -20],
+                        "position": [0, 1, -20],
                         "rotation": [0, 180, 0],
                         "components": [
                             {
@@ -199,16 +266,68 @@
                     {
                         "type": "Mesh Renderer",
                         "mesh": "plane",
-                        "material": "grass"
+                        "material": "land"
                     }
                 ]
             },
         
             {
                 "name":"Wall1",
-                "position": [5, 0, -850],
+                "position": [5, 1, -850],
                 "rotation": [0, 0, 0],
-                "scale": [5, 1, 0.2],
+                "scale": [5, 5, 0.2],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "wall",
+                        "color": [0, 0, 0]
+                    },
+                    {
+                        "type": "collision",
+                        "obstacleType" : "wall"
+                    }
+                ]
+            },
+            {
+                "name":"Wall2",
+                "position": [5, 1, -840],
+                "rotation": [0, 0, 0],
+                "scale": [5, 5, 0.2],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "metal"
+                    },
+                    {
+                        "type": "collision",
+                        "obstacleType" : "wall"
+                    }
+                ]
+            },
+            {
+                "name":"Wall2",
+                "position": [-5, 1, -830],
+                "rotation": [0, 0, 0],
+                "scale": [5, 5, 0.2],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "metal"
+                    },
+                    {
+                        "type": "collision",
+                        "obstacleType" : "wall"
+                    }
+                ]
+            },
+            {
+                "name":"Wall2",
+                "position": [0, 1, -810],
+                "rotation": [0, 0, 0],
+                "scale": [5, 5, 0.2],
                 "components": [
                     {
                         "type": "Mesh Renderer",
@@ -223,9 +342,9 @@
             },
             {
                 "name":"win",
-                "position": [-5, 0, -880],
+                "position": [0, 1, -800],
                 "rotation": [0, 0, 0],
-                "scale": [5, 1, 0.2],
+                "scale": [10, 1, 0.2],
                 "components": [
                     {
                         "type": "Mesh Renderer",
@@ -237,8 +356,73 @@
                         "obstacleType" : "win"
                     }
                 ]
-            }
+            },
             
+            {
+                "name":"coin0",
+                "position": [0, 1, -870],
+                "rotation": [45, 45, 45],
+                "scale": [0.25, 0.25, 0.25],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "coin"
+                    },
+                    {
+                        "type": "collision",
+                        "obstucaseType" : "score"
+                    },
+                    {
+                        "type": "Movement",
+                        "angularVelocity": [0,70, 0]
+                    }
+                ]
+            },
+            {
+                "name":"coin1",
+                "position": [-3, 1, -880],
+                "rotation": [45, 45, 45],
+                "scale": [0.25, 0.25, 0.25],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "coin"
+                    },
+                    {
+                        "type": "collision",
+                        "obstucaseType" : "score"
+                    },
+                    {
+                        "type": "Movement",
+                        "angularVelocity": [0,70, 0]
+                    }
+                ]
+            },
+            {
+                "name":"coin2",
+                "position": [-3, 1, -860],
+                "rotation": [45, 45, 45],
+                "scale": [0.25, 0.25, 0.25],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "coin"
+                    },
+                    {
+                        "type": "collision",
+                        "obstucaseType" : "score"
+                    },
+                    {
+                        "type": "Movement",
+                        "angularVelocity": [0,70, 0]
+                    }
+                ]
+            }
+
+
             
         ]
     }

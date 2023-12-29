@@ -10,7 +10,8 @@ namespace our
     enum class CollisionType
     {
         WALL,
-        WIN
+        WIN,
+        SCORE
     };
 
     // This component denotes that the MovementSystem will move the owning entity by a certain linear and angular velocity.

@@ -30,14 +30,21 @@ namespace our
             this->app = app;
         }
 
-  std::string obstacleTypeToString(CollisionType type) {
-                    switch (type) {
-                        case CollisionType::WALL: return "wall";
-                        case CollisionType::WIN: return "win";
-                        
-                        default: return "Unknown Obstacle";
-                    }
-                }
+        std::string obstacleTypeToString(CollisionType type)
+        {
+            switch (type)
+            {
+            case CollisionType::WALL:
+                return "wall";
+            case CollisionType::WIN:
+                return "win";
+            case CollisionType::SCORE:
+                return "score";
+
+            default:
+                return "Unknown Obstacle";
+            }
+        }
         // This should be called every frame to update all entities containing a FreeCameraControllerComponent
         void update(World *world, float deltaTime)
         {
@@ -93,7 +100,7 @@ namespace our
 
             glm::vec3 current_sensitivity = controller->positionSensitivity;
 
-            position -= front * (deltaTime * current_sensitivity.z);
+            position[2] += (deltaTime * current_sensitivity.z);
             float min_distance = INT_MAX - 1;
             float act_ball;
             float act_coliding;
@@ -127,7 +134,7 @@ namespace our
                 act_ball = position.x;
 
                 distance = act_ball - act_coliding;
-              
+
                 if (act_ball <= act_coliding_leftmost && act_ball >= act_coliding_writemost) // ball is left of wall
                 {
                     // std::cout<<"###########"<<std::endl;
@@ -135,12 +142,11 @@ namespace our
                     {
                         std::cout << obstacleTypeToString(collision->getobstacleType()) << std::endl;
 
-                        
-                        // if (collision->getobstucaseType() == CollisionType::SCORE)
-                        // {
-                        //     act_Collision_Type = "score";
-                        //     actual_collision_entity = Collision_entity;
-                        // }
+                        if (collision->getobstacleType() == CollisionType::SCORE)
+                        {
+                            act_Collision_Type = "score";
+                            actual_collision_entity = Collision_entity;
+                        }
                         if (collision->getobstacleType() == CollisionType::WALL)
                         {
                             std::cout << "wall" << std::endl;
@@ -148,9 +154,9 @@ namespace our
                             actual_collision_entity = Collision_entity;
                         }
                         else if (collision->getobstacleType() == CollisionType::WIN)
-                      
+
                         {
-                               std::cout << "$$$$$$$$$$$" << std::endl;
+                            std::cout << "$$$$$$$$$$$" << std::endl;
                             act_Collision_Type = "win";
                             actual_collision_entity = Collision_entity;
                         }
@@ -169,11 +175,19 @@ namespace our
             {
                 app->winner = true;
             }
+            if (act_Collision_Type == "score")
+            {
+                app->score += 10;
+                world->markForRemoval(actual_collision_entity);
+                //position -= front * (deltaTime * current_sensitivity.z);
+                actual_collision_entity = nullptr;
+                act_Collision_Type = "";
+            }
 
             if (app->getKeyboard().isPressed(GLFW_KEY_D))
-                position -= right * (deltaTime * current_sensitivity.x);
+                position -= right * (deltaTime * current_sensitivity.x * 100000);
             if (app->getKeyboard().isPressed(GLFW_KEY_A))
-                position += right * (deltaTime * current_sensitivity.x);
+                position += right * (deltaTime * current_sensitivity.x * 100000);
         }
 
         // When the state exits, it should call this function to ensure the mouse is unlocked

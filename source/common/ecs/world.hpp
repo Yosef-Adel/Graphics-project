@@ -43,6 +43,7 @@ namespace our {
             //TODO: (Req 8) If the entity is in this world, add it to the "markedForRemoval" set.
             if(entities.count(entity) > 0) {
                 markedForRemoval.insert(entity);
+                deleteMarkedEntities();
             }
         }
 
