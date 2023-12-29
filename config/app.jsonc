@@ -23,6 +23,10 @@
                 "textured":{
                     "vs":"assets/shaders/textured.vert",
                     "fs":"assets/shaders/textured.frag"
+                },
+                "lighted":{
+                    "vs":"assets/shaders/lighted.vert",
+                    "fs":"assets/shaders/lighted.frag"
                 }
             },
             "textures":{
@@ -34,14 +38,19 @@
                 "black": "assets/textures/black.jpg",
                 "red": "assets/textures/red.png",
                 "gold": "assets/textures/gold.png",
-                "gogo": "assets/textures/1324832.png"
+                "gogo": "assets/textures/1324832.png",
+
+                "albedo_ball":"assets/textures/albedo.jpg",
+                "specular_ball":"assets/textures/specular.jpg",
+                "roughness_ball":"assets/textures/roughness.jpg",
+                "emissive_tex":"assets/textures/emissive.jpg"
             },
             "meshes":{
                 "cube": "assets/models/cube.obj",
                 "monkey": "assets/models/monkey.obj",
                 "plane": "assets/models/plane.obj",
                 "sphere": "assets/models/sphere.obj",
-                "ironMan": "assets/models/ironMan.obj",
+                //"ironMan": "assets/models/ironMan.obj",
                 "mario": "assets/models/source/mario.obj"
             },
             "samplers":{
@@ -167,6 +176,51 @@
                     "texture": "gold",
                     "sampler": "default"
                 },
+
+                "lightedcoin":{
+                    "type": "lighted",
+                    "shader": "lighted",
+                    "pipelineState": {
+                        "faceCulling":{
+                            "enabled": false
+                        },
+                        "depthTesting":{
+                            "enabled": true
+                        }
+                    },
+                    "transparent": false,
+                    "albedo":"gold",
+                    "specular":"white",
+                    // "ambient_occlusion":"ambient_occlusion",
+                    "ambient_occlusion":"white",
+                    "roughness":"rough",
+                    "emissive":"black",
+                    "sampler": "pixelated",
+                    "tint": [1, 1, 1, 1]
+                },
+                "lightedcoin_emissive":{
+                    "type": "lighted",
+                    "shader": "lighted",
+                    "pipelineState": {
+                        "faceCulling":{
+                            "enabled": false
+                        },
+                        "depthTesting":{
+                            "enabled": true
+                        }
+                    },
+                    "transparent": false,
+                    "albedo":"emissive_rough",
+                    "specular":"black",
+                    // "ambient_occlusion":"ambient_occlusion",
+                    "ambient_occlusion":"black",
+                    "roughness":"emissive_rough",
+                    "emissive":"emissive_tex",
+                    "sampler": "pixelated",
+                    "tint": [1, 1, 1, 1]
+                },
+
+
                 "moon":{
                     "type": "textured",
                     "shader": "textured",
@@ -219,14 +273,14 @@
                 "name":"player",
                 "position": [0, 0.5, -900],
                 "rotation": [0, 0, 0],
-                "scale": [0.00003, 0.00003, 0.0005],
+                "scale": [0.05, 0.05, 0.05],//[0.05, 0.05, 0.05],//[0.00003, 0.00003, 0.0005],
                 "components": [
                     {
                         "type":"player"
                     },
                     {
                         "type": "Mesh Renderer",
-                        "mesh": "ironMan",
+                        "mesh": "mario",
                         "material": "gogo"
                     },
                     {
@@ -402,7 +456,7 @@
             },
             {
                 "name":"coin2",
-                "position": [-3, 1, -860],
+                "position": [-3, 1, -890],
                 "rotation": [45, 45, 45],
                 "scale": [0.25, 0.25, 0.25],
                 "components": [
@@ -410,6 +464,28 @@
                         "type": "Mesh Renderer",
                         "mesh": "cube",
                         "material": "coin"
+                    },
+                    {
+                        "type": "collision",
+                        "obstucaseType" : "score"
+                    },
+                    {
+                        "type": "Movement",
+                        "angularVelocity": [0,70, 0]
+                    }
+                ]
+            },
+
+            {
+                "name":"coin3",
+                "position": [1, 0.8,-1.3],
+                "rotation": [45, 45, 45],
+                "scale": [0.25, 0.25, 0.25],
+                "components": [
+                    {
+                        "type": "Mesh Renderer",
+                        "mesh": "cube",
+                        "material": "lightedcoin"
                     },
                     {
                         "type": "collision",

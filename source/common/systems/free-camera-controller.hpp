@@ -100,12 +100,12 @@ namespace our
 
             glm::vec3 current_sensitivity = controller->positionSensitivity;
 
-            position[2] += (deltaTime * current_sensitivity.z);
+            position[2] += (deltaTime * current_sensitivity.z * 1);
             float min_distance = INT_MAX - 1;
-            float act_ball;
-            float act_coliding;
-            float mov;
-            float distance;
+            float act_ball= 0.0f;
+            float act_coliding = 0.0f;
+            float mov = 0.0f;
+            float distance=  0.0f;
             CollisionComponent *collision = nullptr;
             std::string act_Collision_Type;
             Entity *Collision_entity = nullptr;
@@ -185,9 +185,9 @@ namespace our
             }
 
             if (app->getKeyboard().isPressed(GLFW_KEY_D))
-                position -= right * (deltaTime * current_sensitivity.x * 100000);
+                position -= right * (deltaTime * current_sensitivity.x * 100); // 100000
             if (app->getKeyboard().isPressed(GLFW_KEY_A))
-                position += right * (deltaTime * current_sensitivity.x * 100000);
+                position += right * (deltaTime * current_sensitivity.x * 100);
         }
 
         // When the state exits, it should call this function to ensure the mouse is unlocked
